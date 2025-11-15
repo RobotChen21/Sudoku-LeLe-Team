@@ -1,0 +1,10 @@
+/node_modules/
+/dist/
+.github
+.DS_Store
+.idea
+tailwind-full.config.js
+pnpm-lock.yaml
+package-lock.json
+AGENTS.md
+GEMINI.md
