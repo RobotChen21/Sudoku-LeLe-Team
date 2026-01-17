@@ -8,6 +8,9 @@
 	import { keyboardDisabled } from '@sudoku/stores/keyboard';
 	import { gamePaused } from '@sudoku/stores/game';
 
+	import { get } from 'svelte/store';
+	let memorySave = null;
+
 	$: hintsAvailable = $hints > 0;
 
 	function handleHint() {
@@ -19,9 +22,83 @@
 			userGrid.applyHint($cursor);
 		}
 	}
+
+	function saveSnapshot() {
+		// 保存当前的Grid数据（深拷贝）
+		const currentGrid = get(userGrid);
+		const currentCandidates = get(candidates);
+		const currentNotes = get(notes);
+		
+		// 深拷贝网格数据
+		const savedGrid = JSON.parse(JSON.stringify(currentGrid));
+		const savedCandidates = JSON.parse(JSON.stringify(currentCandidates));
+		
+		// 保存到memorySave中
+		memorySave = {
+			grid: savedGrid,
+			candidates: savedCandidates,
+			notes: currentNotes
+		};
+		
+    	console.log('已保存当前Grid数据:', memorySave);	
+  	}
+
+	function loadSnapshot() {
+		// 恢复之前保存的Grid数据
+		if (memorySave) {
+			// 恢复网格数据 - 使用现有API逐个单元格恢复
+			const savedGrid = JSON.parse(JSON.stringify(memorySave.grid));
+			const savedCandidates = JSON.parse(JSON.stringify(memorySave.candidates));
+			
+			// 获取当前的userGrid和candidates数据
+			const currentUserGrid = get(userGrid);
+			const currentCandidates = get(candidates);
+			
+			// 1. 清除当前所有候选数字
+			for (const key in currentCandidates) {
+				const [x, y] = key.split(',').map(Number);
+				candidates.clear({ x, y });
+			}
+			
+			// 2. 逐个单元格恢复网格数据
+			for (let y = 0; y < savedGrid.length; y++) {
+				for (let x = 0; x < savedGrid[y].length; x++) {
+					userGrid.set({ x, y }, savedGrid[y][x]);
+				}
+			}
+			
+			// 3. 恢复候选数字数据
+			for (const key in savedCandidates) {
+				const [x, y] = key.split(',').map(Number);
+				const candidateList = savedCandidates[key];
+				
+				// 添加每个候选数字
+				for (const num of candidateList) {
+					if (num !== undefined) { // 过滤掉可能的undefined值
+						candidates.add({ x, y }, num);
+					}
+				}
+			}
+			
+			// 4. 恢复笔记模式状态
+			const currentNotes = get(notes);
+			if (currentNotes !== memorySave.notes) {
+				notes.toggle();
+			}
+			
+			console.log('已成功恢复Grid数据到棋盘');
+			console.log('恢复的网格数据:', savedGrid);
+		} else {
+			console.log('没有可恢复的保存数据');
+		}
+  	}
 </script>
 
 <div class="action-buttons space-x-3">
+
+	<button class="btn btn-round" disabled={$gamePaused} title="Undo" on:click={saveSnapshot}>保存</button>
+
+	<button class="btn btn-round" disabled={$gamePaused} title="Redo" on:click={loadSnapshot}>恢复</button>
 
 	<button class="btn btn-round" disabled={$gamePaused} title="Undo">
 		<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
