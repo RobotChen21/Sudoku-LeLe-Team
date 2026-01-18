@@ -5,6 +5,7 @@
 	import { settings } from '@sudoku/stores/settings';
 	import { cursor } from '@sudoku/stores/cursor';
 	import { candidates } from '@sudoku/stores/candidates';
+	import { hint } from '@sudoku/stores/hint';
 	import Cell from './Cell.svelte';
 
 	function isSelected(cursorStore, x, y) {
@@ -27,6 +28,19 @@
 
 		return gridStore[cursorStore.y][cursorStore.x];
 	}
+
+	function isHintCell(hintStore, x, y) {
+		if (!hintStore) return false;
+		const [hx, hy] = hintStore.targetCell || [];
+		if (hx === x && hy === y) return true;
+		return hintStore.relatedCells.some(([rx, ry]) => rx === x && ry === y);
+	}
+
+	function isHintTarget(hintStore, x, y) {
+		if (!hintStore) return false;
+		const [hx, hy] = hintStore.targetCell || [];
+		return hx === x && hy === y;
+	}
 </script>
 
 <div class="board-padding relative z-10">
@@ -48,7 +62,9 @@
 					      userNumber={$grid[y][x] === 0}
 					      sameArea={$settings.highlightCells && !isSelected($cursor, x, y) && isSameArea($cursor, x, y)}
 					      sameNumber={$settings.highlightSame && value && !isSelected($cursor, x, y) && getValueAtCursor($userGrid, $cursor) === value}
-					      conflictingNumber={$settings.highlightConflicting && $grid[y][x] === 0 && $invalidCells.includes(x + ',' + y)} />
+					      conflictingNumber={$settings.highlightConflicting && $grid[y][x] === 0 && $invalidCells.includes(x + ',' + y)}
+					      hintRelated={isHintCell($hint, x, y)}
+					      hintTarget={isHintTarget($hint, x, y)} />
 				{/each}
 			{/each}
 
