@@ -15,6 +15,8 @@
 	export let selected;
 	export let sameArea;
 	export let sameNumber;
+	export let hintRelated = false;
+	export let hintTarget = false;
 
 	const borderRight = (cellX !== SUDOKU_SIZE && cellX % 3 !== 0);
 	const borderRightBold = (cellX !== SUDOKU_SIZE && cellX % 3 === 0);
@@ -34,7 +36,9 @@
 		     class:selected={selected}
 		     class:same-area={sameArea}
 		     class:same-number={sameNumber}
-		     class:conflicting-number={conflictingNumber}>
+		     class:conflicting-number={conflictingNumber}
+		     class:highlight-hint={hintRelated}
+		     class:hint-target={hintTarget}>
 
 			<button class="cell-btn" on:click={cursor.set(cellX - 1, cellY - 1)}>
 				{#if candidates}
@@ -118,5 +122,33 @@
 
 	.conflicting-number {
 		@apply text-red-600;
+	}
+
+	.highlight-hint {
+		animation: hintPulse 1.4s ease-in-out infinite;
+		box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.8);
+	}
+
+	.hint-target {
+		animation: hintTargetPulse 1.2s ease-in-out infinite;
+		box-shadow: inset 0 0 0 3px rgba(37, 99, 235, 1);
+	}
+
+	@keyframes hintPulse {
+		0%, 100% {
+			box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.35);
+		}
+		50% {
+			box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.85);
+		}
+	}
+
+	@keyframes hintTargetPulse {
+		0%, 100% {
+			box-shadow: inset 0 0 0 3px rgba(37, 99, 235, 0.45), 0 0 8px rgba(37, 99, 235, 0.35);
+		}
+		50% {
+			box-shadow: inset 0 0 0 3px rgba(37, 99, 235, 1), 0 0 10px rgba(37, 99, 235, 0.6);
+		}
 	}
 </style>
