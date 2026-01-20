@@ -8,6 +8,7 @@
 	import { keyboardDisabled } from '@sudoku/stores/keyboard';
 	import { gamePaused } from '@sudoku/stores/game';
 	import { hint } from '@sudoku/stores/hint';
+	import { undo, redo, historyLength, redoLength } from '@sudoku/stores/history';
 	import { getHint } from '@sudoku/algorithms';
 
 	import { get } from 'svelte/store';
@@ -107,13 +108,13 @@
 
 	<button class="btn btn-round" disabled={$gamePaused} title="Redo" on:click={loadSnapshot}>恢复</button>
 
-	<button class="btn btn-round" disabled={$gamePaused} title="Undo">
+	<button class="btn btn-round" disabled={$gamePaused || $historyLength === 0} title="Undo" on:click={undo}>
 		<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
 		</svg>
 	</button>
 
-	<button class="btn btn-round" disabled={$gamePaused} title="Redo">
+	<button class="btn btn-round" disabled={$gamePaused || $redoLength === 0} title="Redo" on:click={redo}>
 		<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 90 00-8 8v2M21 10l-6 6m6-6l-6-6" />
 		</svg>
