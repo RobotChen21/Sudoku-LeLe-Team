@@ -11,10 +11,18 @@
 	let sencode = data.sencode || '';
 
 	$: enteredSencode = sencode.trim().length !== 0;
-	$: buttonDisabled = enteredSencode ? !validateSencode(sencode) : !DIFFICULTIES.hasOwnProperty(difficulty);
+	// 这里逻辑改成不禁用，后面如果有问题就随机初始化
+	// $: buttonDisabled = enteredSencode ? !validateSencode(sencode) : !DIFFICULTIES.hasOwnProperty(difficulty);
+	$: buttonDisabled = false;
 
 	function handleStart() {
-		if (validateSencode(sencode)) {
+		// if (validateSencode(sencode)) {
+		// 	startCustom(sencode);
+		// } else {
+		// 	startNew(difficulty);
+		// }
+		// 这里逻辑改成sencode不为空就尝试启动自定义
+		if (enteredSencode) {
 			startCustom(sencode);
 		} else {
 			startNew(difficulty);
@@ -48,7 +56,7 @@
 	</div>
 </div>
 
-<label for="sencode" class="text-lg mb-3">Or, if you have a code for a custom Sudoku puzzle, enter it here:</label>
+<label for="sencode" class="text-lg mb-3">Or, if you have a code for a custom Sudoku puzzle or a wiki URL, enter it here:</label>
 
 <input id="sencode" class="input font-mono mb-5" bind:value={sencode} type="text">
 

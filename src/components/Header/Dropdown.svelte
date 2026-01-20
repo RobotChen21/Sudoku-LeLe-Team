@@ -5,8 +5,30 @@
 	import { slide, fade } from 'svelte/transition';
 	import { DIFFICULTIES, DROPDOWN_DURATION, DIFFICULTY_CUSTOM } from '@sudoku/constants';
 	import { difficulty } from '@sudoku/stores/difficulty';
+	import { guideState } from '@sudoku/stores/guide';
 
 	let dropdownVisible = false;
+
+	// 响应式监听guide状态
+	$: handleGuideState($guideState);
+
+	// 处理guide状态变化的函数
+	function handleGuideState(guide) {
+		// 如果引导进行到第二步，且菜单还没展开，自动展开
+		if (guide.active && guide.step === 2 && !dropdownVisible) {
+			console.log('引导：自动展开下拉菜单');
+			dropdownVisible = true;
+			game.pause();
+		}
+		
+		// 如果引导结束，且菜单还展开着，自动关闭
+		if (!guide.active && dropdownVisible) {
+			console.log('引导结束：关闭下拉菜单');
+			hideDropdown();
+		}
+	}
+
+
 
 	function handleDifficulty(difficultyValue) {
 		dropdownVisible = false;
@@ -44,14 +66,14 @@
 
 		modal.show('prompt', {
 			title: 'Enter Code',
-			text: 'Please enter the code of the Sudoku puzzle you want to play:',
+			text: 'Please enter the code of the Sudoku puzzle or wiki URL you want to play:',
 			fontMono: true,
 			button: 'Start',
 			onHide: game.resume,
 			callback: (value) => {
 				game.startCustom(value);
 			},
-			validate: validateSencode
+			// validate: validateSencode 直接删去
 		});
 	}
 
